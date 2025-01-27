@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WD Quiz Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnH/2ntbg+Y4K6z4ytBO1r8c1dQ8ec4pB2+1K/b7+MaXtDiW8RR+jtxGd0EmlWu7nZp+5C5iQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- Start Quiz Popup -->
+    <div id="startModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md">
+            <h2 class="text-xl font-bold text-center mb-4">Welcome to the Graphic Design Quiz</h2>
+            <form id="startForm" class="space-y-4">
+                <div>
+                    <label for="userName" class="block font-semibold mb-1">Your Name</label>
+                    <input type="text" id="userName" name="userName" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" placeholder="Enter your name" required>
+                </div>
+                <div>
+                    <label for="enrollmentNumber" class="block font-semibold mb-1">Enrollment Number</label>
+                    <input type="text" id="enrollmentNumber" name="enrollmentNumber" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500" placeholder="Enter your enrollment number" required>
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">Start Quiz</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Timer -->
+    <div id="timer" class="fixed top-4 right-4 bg-blue-500 text-white rounded-full px-4 py-2 shadow-lg flex items-center space-x-2 hidden">
+        <i class="fas fa-clock"></i>
+        <span id="timeDisplay">10:00</span>
+    </div>
+
+    <!-- Quiz Container -->
+    <div class="max-w-4xl mx-auto p-6">
+        <div id="quizContainer" class="hidden bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-center mb-4">Graphic Design Quiz</h1>
+            <form id="quizForm">
+                <div id="questionsContainer" class="space-y-6">
+                    <!-- Questions will be dynamically injected here -->
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4 w-full hover:bg-blue-600">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Result Popup -->
+    <div id="resultModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md">
+            <h2 class="text-xl font-bold text-center mb-4">Quiz Results</h2>
+            <p class="text-lg font-semibold">Name: <span id="resultName"></span></p>
+            <p class="text-lg font-semibold">Enrollment: <span id="resultEnrollment"></span></p>
+            <p class="text-lg font-semibold">Score: <span id="resultScore"></span></p>
+            <button id="showAnswersBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg mt-4 w-full hover:bg-green-600">Show Correct Answers</button>
+        </div>
+    </div>
+
+    <!-- Answer Review -->
+    <div id="answerReview" class="hidden max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-4">
+        <!-- Review details will be injected here -->
+    </div>
+
+    <script>
+  
+  const questions = [
+    // HTML & CSS Questions
+    {
+        question: "Which tag is used to define an HTML document?",
+        options: ["&lt;html&gt;", "&lt;head&gt;", "&lt;body&gt;", "&lt;section&gt;"],
+        correct: 0
+    },
+    {
+        question: "Which HTML tag is used for creating a hyperlink?",
+        options: ["&lt;a&gt;", "&lt;link&gt;", "&lt;href&gt;", "&lt;anchor&gt;"],
+        correct: 0
+    },
+    {
+        question: "Which CSS property is used to change the background color of an element?",
+        options: ["color", "bg-color", "background-color", "background"],
+        correct: 2
+    },
+    {
+        question: "Which HTML tag is used to display an image?",
+        options: ["&lt;image&gt;", "&lt;img&gt;", "&lt;pic&gt;", "&lt;src&gt;"],
+        correct: 1
+    },
+    {
+        question: "How do you make text bold in HTML?",
+        options: ["&lt;b&gt;", "&lt;strong&gt;", "&lt;em&gt;", "&lt;bold&gt;"],
+        correct: 1
+    },
+    {
+        question: "What does the 'class' attribute do in HTML?",
+        options: ["Defines the ID of an element", "Defines the style of an element", "Defines a class for styling multiple elements", "Links to an external stylesheet"],
+        correct: 2
+    },
+    {
+        question: "Which property is used to change the font of an element in CSS?",
+        options: ["font-family", "text-font", "font-style", "font-type"],
+        correct: 0
+    },
+    {
+        question: "How do you create a comment in HTML?",
+        options: ["&lt;!-- This is a comment --&gt;", "// This is a comment", "&lt;comment&gt;This is a comment&lt;/comment&gt;", "/* This is a comment */"],
+        correct: 0
+    },
+    {
+        question: "Which tag is used to define a paragraph in HTML?",
+        options: ["&lt;p&gt;", "&lt;para&gt;", "&lt;text&gt;", "&lt;div&gt;"],
+        correct: 0
+    },
+    {
+        question: "What is the default value of the 'position' property in CSS?",
+        options: ["relative", "absolute", "static", "fixed"],
+        correct: 2
+    },
+    {
+        question: "Which of the following is the correct syntax to change the color of text in CSS?",
+        options: ["color: red;", "text-color: red;", "font-color: red;", "background-color: red;"],
+        correct: 0
+    },
+    {
+        question: "Which HTML tag is used to create an ordered list?",
+        options: ["&lt;ol&gt;", "&lt;ul&gt;", "&lt;li&gt;", "&lt;dl&gt;"],
+        correct: 0
+    },
+    {
+        question: "What is the purpose of the 'alt' attribute in an &lt;img&gt; tag?",
+        options: ["To set the image dimensions", "To provide a description of the image", "To specify the image source", "To link the image to a URL"],
+        correct: 1
+    },
+    {
+        question: "What is the purpose of the &lt;link&gt; tag in HTML?",
+        options: ["To link external JavaScript files", "To define a link to another webpage", "To link external CSS stylesheets", "To display a hyperlink"],
+        correct: 2
+    },
+    {
+        question: "Which CSS property is used to control the size of an element's border?",
+        options: ["border-width", "border-size", "border-style", "border-color"],
+        correct: 0
+    },
+    {
+        question: "What is the correct HTML element for inserting a line break?",
+        options: ["&lt;break&gt;", "&lt;br&gt;", "&lt;lb&gt;", "&lt;hr&gt;"],
+        correct: 1
+    },
+    {
+        question: "Which HTML attribute is used to specify the background color of a page?",
+        options: ["bgcolor", "background", "color", "style"],
+        correct: 1
+    },
+    {
+        question: "Which CSS property is used to control the space between the elements inside a container?",
+        options: ["margin", "padding", "border", "spacing"],
+        correct: 1
+    },
+    {
+        question: "What does the 'display' property in CSS control?",
+        options: ["The layout of an element", "The text color of an element", "The size of an element", "The visibility of an element"],
+        correct: 0
+    },
+
+    // Bootstrap Questions
+    {
+        question: "Which of the following is used to create a container in Bootstrap?",
+        options: ["&lt;div class='container'&gt;", "&lt;container&gt;&lt;/container&gt;", "&lt;div class='box'&gt;", "&lt;div class='wrapper'&gt;"],
+        correct: 0
+    },
+    {
+        question: "Which class is used to make an element take up the full width of its parent in Bootstrap?",
+        options: [".col", ".container-fluid", ".row", ".col-12"],
+        correct: 3
+    },
+    {
+        question: "What class is used to create a primary button in Bootstrap?",
+        options: ["btn-default", "btn-primary", "button-primary", "btn-main"],
+        correct: 1
+    },
+    {
+        question: "Which Bootstrap class is used to center align text?",
+        options: [".text-align-center", ".text-center", ".align-center", ".center-text"],
+        correct: 1
+    },
+    {
+        question: "What is the default grid system in Bootstrap?",
+        options: ["12 columns", "6 columns", "16 columns", "8 columns"],
+        correct: 0
+    },
+    {
+        question: "Which class is used to create a responsive image in Bootstrap?",
+        options: [".img-fluid", ".img-responsive", ".img-scale", ".img-width"],
+        correct: 0
+    },
+    {
+        question: "Which class in Bootstrap is used to hide an element on all screen sizes?",
+        options: [".d-none", ".hide", ".hidden", ".d-hidden"],
+        correct: 0
+    },
+    {
+        question: "Which class is used to add a padding to all sides of an element in Bootstrap?",
+        options: [".p-3", ".padding-3", ".pad-3", ".space-3"],
+        correct: 0
+    },
+    {
+        question: "How do you create a responsive navigation bar in Bootstrap?",
+        options: ["&lt;nav class='navbar navbar-responsive'&gt;", "&lt;nav class='navbar navbar-expand-md'&gt;", "&lt;nav class='navbar navbar-collapse'&gt;", "&lt;nav class='navbar navbar-flex'&gt;"],
+        correct: 1
+    },
+    {
+        question: "Which of the following classes is used to create a grid layout in Bootstrap?",
+        options: [".grid", ".row", ".column", ".container"],
+        correct: 1
+    },
+
+    {
+        question: "Which of the following is the correct way to declare a variable in JavaScript?",
+        options: ["var x;", "int x;", "let x;", "variable x;"],
+        correct: 2
+    },
+    {
+        question: "Which of the following data types is NOT a primitive data type in JavaScript?",
+        options: ["string", "boolean", "array", "number"],
+        correct: 2
+    },
+    {
+        question: "Which operator is used for assignment in JavaScript?",
+        options: ["==", "=", "===", "!=="],
+        correct: 1
+    },
+    {
+        question: "What will the following code output: console.log(typeof 42);",
+        options: ["number", "string", "object", "undefined"],
+        correct: 0
+    },
+    {
+        question: "Which of the following is the correct way to compare two values in JavaScript for both value and type?",
+        options: ["==", "=", "===", "==="],
+        correct: 2
+    },
+    {
+        question: "Which of the following operators is used for logical AND in JavaScript?",
+        options: ["&&", "||", "&", "|"],
+        correct: 0
+    },
+    {
+        question: "What is the result of 5 + '5' in JavaScript?",
+        options: ["10", "'55'", "NaN", "Error"],
+        correct: 1
+    },
+    {
+        question: "What will be the output of the following code: console.log(10 > 5 && 10 < 15);",
+        options: ["true", "false", "undefined", "NaN"],
+        correct: 0
+    },
+    {
+        question: "Which statement is used to exit a loop or switch statement in JavaScript?",
+        options: ["exit", "break", "stop", "continue"],
+        correct: 1
+    },
+    {
+        question: "Which of the following is the correct way to define a function in JavaScript?",
+        options: ["function = myFunc()", "function myFunc(){}", "def myFunc():", "function: myFunc{}"],
+        correct: 1
+    },
+    {
+        question: "Which method is used to add an element to the end of an array in JavaScript?",
+        options: ["push()", "pop()", "shift()", "unshift()"],
+        correct: 0
+    },
+    {
+        question: "What does the 'this' keyword refer to in a function in JavaScript?",
+        options: ["The function itself", "The global object", "The object the function is a method of", "None of the above"],
+        correct: 2
+    },
+    {
+        question: "Which of the following is the correct way to write an arrow function in JavaScript?",
+        options: ["function => myFunc()", "myFunc() => {}", "(myFunc) => {}", "const myFunc = () => {}"],
+        correct: 3
+    },
+    {
+        question: "Which of the following is NOT a valid loop in JavaScript?",
+        options: ["for", "while", "do-while", "repeat-until"],
+        correct: 3
+    },
+    {
+        question: "What does the 'NaN' value represent in JavaScript?",
+        options: ["Not a Number", "Null a Number", "Not available Number", "None of the above"],
+        correct: 0
+    },
+    {
+        question: "How do you create an object in JavaScript?",
+        options: ["var obj = []", "var obj = {}", "var obj = ()", "var obj = Object()"],
+        correct: 1
+    },
+    {
+        question: "Which method is used to remove an element from the end of an array in JavaScript?",
+        options: ["push()", "pop()", "shift()", "unshift()"],
+        correct: 1
+    },
+    {
+        question: "Which event is triggered when a user clicks on an HTML element?",
+        options: ["onmouseover", "onclick", "onchange", "onfocus"],
+        correct: 1
+    },
+
+    {
+        question: "Which of the following is used to declare a variable in JavaScript?",
+        options: ["let", "var", "const", "all of the above"],
+        correct: 3
+    },
+    {
+        question: "What will the following code output: console.log(2 + '2');",
+        options: ["4", "22", "Error", "NaN"],
+        correct: 1
+    },
+    {
+        question: "Which of the following is the correct syntax for a JavaScript function?",
+        options: ["function = myFunction()", "function myFunction() {}", "function: myFunction()", "def myFunction():"],
+        correct: 1
+    }
+
+];
+
+
+
+
+        const startModal = document.getElementById('startModal');
+        const quizContainer = document.getElementById('quizContainer');
+        const timer = document.getElementById('timer');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const quizForm = document.getElementById('quizForm');
+        const resultModal = document.getElementById('resultModal');
+        const resultName = document.getElementById('resultName');
+        const resultEnrollment = document.getElementById('resultEnrollment');
+        const resultScore = document.getElementById('resultScore');
+        const showAnswersBtn = document.getElementById('showAnswersBtn');
+        const answerReview = document.getElementById('answerReview');
+
+        let timerInterval;
+
+        function startTimer(duration) {
+            let time = duration;
+            timer.classList.remove('hidden');
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(time / 60).toString().padStart(2, '0');
+                const seconds = (time % 60).toString().padStart(2, '0');
+                timeDisplay.textContent = `${minutes}:${seconds}`;
+                time--;
+                if (time < 0) {
+                    clearInterval(timerInterval);
+                    quizForm.dispatchEvent(new Event('submit', { cancelable: true }));
+                }
+            }, 1000);
+        }
+
+        function loadQuestions() {
+            const questionsContainer = document.getElementById('questionsContainer');
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('mb-4');
+                questionDiv.innerHTML = `
+                    <p class="text-lg font-semibold mb-2">${index + 1}. ${q.question}</p>
+                    ${q.options.map((option, i) => `
+                        <label class="block mb-1">
+                            <input type="radio" name="question${index}" value="${i}" required>
+                            ${option}
+                        </label>
+                    `).join('')}
+                `;
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        document.getElementById('startForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const enrollment = document.getElementById('enrollmentNumber').value;
+            resultName.textContent = name;
+            resultEnrollment.textContent = enrollment;
+            startModal.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            loadQuestions();
+            startTimer(600); // 10 minutes
+        });
+
+        quizForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            clearInterval(timerInterval);
+            timer.classList.add('hidden');
+            let score = 0;
+            const formData = new FormData(quizForm);
+            const review = [];
+
+            questions.forEach((q, index) => {
+                const answer = formData.get(`question${index}`);
+                const isCorrect = parseInt(answer) === q.correct;
+                if (isCorrect) score++;
+                review.push({
+                    question: q.question,
+                    correctAnswer: q.options[q.correct],
+                    studentAnswer: q.options[answer] || "Not Answered",
+                    isCorrect
+                });
+            });
+
+            resultScore.textContent = `${score} / ${questions.length}`;
+            quizContainer.classList.add('hidden');
+            resultModal.classList.remove('hidden');
+
+            showAnswersBtn.addEventListener('click', () => {
+                answerReview.innerHTML = review.map(r => `
+                    <div class="p-4 border rounded-lg ${r.isCorrect ? 'bg-green-100' : 'bg-red-100'}">
+                        <p class="font-semibold">${r.question}</p>
+                        <p>Correct Answer: ${r.correctAnswer}</p>
+                        <p>Your Answer: ${r.studentAnswer}</p>
+                    </div>
+                `).join('');
+                resultModal.classList.add('hidden');
+                answerReview.classList.remove('hidden');
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+        const startButton = document.getElementById("startQuiz");
+        const quizContainer = document.querySelector(".container");
+        const timerElement = document.querySelector(".timer span");
+        const resultPopup = document.querySelector(".result-popup");
+        const resultEmoji = document.getElementById("resultEmoji");
+        const resultMessage = document.getElementById("resultMessage");
+
+        let timeRemaining = 20 * 60; // 20 minutes
+        let interval;
+
+        function startTimer() {
+            interval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(interval);
+                    showResult();
+                } else {
+                    timeRemaining--;
+                    const minutes = Math.floor(timeRemaining / 60);
+                    const seconds = timeRemaining % 60;
+                    timerElement.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                }
+            }, 1000);
+        }
+
+        function showResult(score) {
+            clearInterval(interval);
+            if (score < 20) {
+                resultPopup.className = "result-popup failed";
+                resultEmoji.textContent = "😞";
+                resultMessage.textContent = "You failed the quiz. Try again!";
+            } else if (score < 35) {
+                resultPopup.className = "result-popup passed";
+                resultEmoji.textContent = "😊";
+                resultMessage.textContent = "You passed! Well done!";
+            } else {
+                resultPopup.className = "result-popup excellent";
+                resultEmoji.textContent = "🎉";
+                resultMessage.textContent = "Excellent! Great job!";
+            }
+            resultPopup.style.display = "block";
+        }
+
+        startButton.addEventListener("click", () => {
+            quizContainer.style.display = "block";
+            startTimer();
+        });
+    });
+
+
+
+    </script>
+</body>
+</html>
+
+
+
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .header {
+        background-color: #5406ba;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .question-container {
+        padding: 20px;
+    }
+
+    .question {
+        font-size: 1.2em;
+        margin-bottom: 15px;
+    }
+
+    .options {
+        margin: 10px 0;
+    }
+
+    .option {
+        background: #eee;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 5px 0;
+        cursor: pointer;
+        display: block;
+    }
+
+    .option:hover {
+        background: #dcdcdc;
+    }
+
+    .footer {
+        padding: 10px 20px;
+        background: #f1f1f1;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer button {
+        background: #5406ba;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .footer button:hover {
+        background: #3e0486;
+    }
+
+    .timer {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #5406ba;
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .result-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        display: none;
+    }
+
+    .result-popup.failed {
+        border: 2px solid #ff4d4d;
+    }
+
+    .result-popup.passed {
+        border: 2px solid #54e346;
+    }
+
+    .result-popup.excellent {
+        border: 2px solid #ffeb3b;
+    }
+
+    .emoji {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .popup-buttons button {
+        margin: 10px 5px;
+    }
+</style>
